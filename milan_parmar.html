@@ -1,0 +1,942 @@
+<!DOCTYPE html>
+<html>
+    <html>
+    <head>
+        <meta charset="utf-8">
+        <title>Seven Segment Clock</title>
+        <style>
+            #canvas1 {
+                border: lightgray 10px solid;
+                background-color: black;
+                position: absolute;                        
+                top: 50%;
+                left: 50%;
+                transform: translate(-50%, -50%);   /* centers box in the middle of the page */
+            }
+            #digit1 {
+                background-color: black;
+                position: absolute;
+                top: 50%;
+                transform: translate(-400%, -50%);
+            }
+            #digit2 {
+                background-color: black;
+                position: absolute;
+                top: 50%;
+                transform: translate(-290%, -50%);
+            }
+            #colon1 {
+                background-color: black;
+                position: absolute;
+                top: 50%;
+                transform: translate(-1040%, -50%);
+            }
+            #digit3 {
+                background-color: black;
+                position: absolute;
+                top: 50%;
+                transform: translate(-105%, -50%);
+            }
+            #digit4 {
+                background-color: black;
+                position: absolute;
+                top: 50%;
+                transform: translate(5%, -50%);
+            }
+            #colon2 {
+                background-color: black;
+                position: absolute;
+                top: 50%;
+                transform: translate(+915%, -50%);
+            }
+            #digit5 {
+                background-color: black;
+                position: absolute;
+                top: 50%;
+                transform: translate(+190%, -50%);
+            }
+            #digit6 {
+                background-color: black;
+                position: absolute;
+                top: 50%;
+                transform: translate(+300%, -50%);
+            }
+        </style>
+    </head>
+    <body>
+        <div style="text-align: center;">
+            <canvas id="canvas1" width="575px" height="160"></canvas>
+
+            <canvas id="digit1" width="66px" height="132px"></canvas>   <!-- digits are created by using a height that is double the width -->
+            <canvas id="digit2" width="66px" height="132px"></canvas>
+
+            <canvas id="colon1" width="10px" height="132px"></canvas>
+
+            <canvas id="digit3" width="66px" height="132px"></canvas>
+            <canvas id="digit4" width="66px" height="132px"></canvas>
+
+            <canvas id="colon2" width="10px" height="132px"></canvas>
+
+            <canvas id="digit5" width="66px" height="132px"></canvas>
+            <canvas id="digit6" width="66px" height="132px"></canvas>
+
+
+            <script>
+                // canvas element creation
+                var canvas1 = document.getElementById("canvas1");
+                var ctx = canvas1.getContext("2d");
+
+                var digit1 = document.getElementById("digit1");
+                var dig1 = digit1.getContext("2d");
+                var digit2 = document.getElementById("digit2");
+                var dig2 = digit2.getContext("2d");
+                var colon1 = document.getElementById("colon1");
+                var col1 = colon1.getContext("2d");
+
+                var digit3 = document.getElementById("digit3");
+                var dig3 = digit3.getContext("2d");
+                var digit4 = document.getElementById("digit4");
+                var dig4 = digit4.getContext("2d");
+                var colon2 = document.getElementById("colon2");
+                var col2 = colon2.getContext("2d");
+
+                var digit5 = document.getElementById("digit5");
+                var dig5 = digit5.getContext("2d");
+                var digit6 = document.getElementById("digit6");
+                var dig6 = digit6.getContext("2d");
+    
+                // binary pattern for encoding the digits
+                zero    = [1,1,1,1,1,1,0];
+                one     = [0,1,1,0,0,0,0];
+                two     = [1,1,0,1,1,0,1];
+                three   = [1,1,1,1,0,0,1];
+                four    = [0,1,1,0,0,1,1];
+                five    = [1,0,1,1,0,1,1];
+                six     = [1,0,1,1,1,1,1];
+                seven   = [1,1,1,0,0,0,0];
+                eight   = [1,1,1,1,1,1,1];
+                nine    = [1,1,1,1,0,1,1];
+    
+                const encodings = [zero,one,two,three,four,five,six,seven,eight,nine];
+    
+                // colon seperating hours and minutes
+                col1.rect(0,40,10,10);
+                col1.rect(0,80,10,10);
+    
+                // colon seperating minutes and seconds
+                col2.rect(0,40,10,10);
+                col2.rect(0,80,10,10);
+    
+                col1.fillStyle = "red";  // fill color
+                col1.fill();             // fill box
+                col2.fillStyle = "red";
+                col2.fill();
+    
+                // digit one
+                // createSegment(x, y, width, height, pointDepth, isHorizontal)
+
+                // top
+                d1_seg1 = createSegment(
+                    (digit1.width*0.2),
+                    0,
+                    (digit1.width*0.61),
+                    (digit1.height*0.09),
+                    (digit1.width*0.09),
+                    true);
+
+                // top right
+                d1_seg2 = createSegment(
+                    (digit1.width*0.82),
+                    (digit1.height*0.12),
+                    (digit1.width*0.18),
+                    (digit1.height*0.3),
+                    (digit1.width*0.12),
+                    false);
+
+                // bottom right
+                d1_seg3 = createSegment(
+                    (digit1.width*0.82),
+                    (digit1.height*0.58),
+                    (digit1.width*0.18),
+                    (digit1.height*0.3),
+                    (digit1.width*0.12),
+                    false);
+
+                // bottom
+                d1_seg4 = createSegment(
+                    (digit1.width*0.2),
+                    (digit1.height*0.91),
+                    (digit1.width*0.61),
+                    (digit1.height*0.09),
+                    (digit1.width*0.09),
+                    true);
+
+                // bottom left
+                d1_seg5 = createSegment(
+                    0,
+                    (digit1.height*0.58),
+                    (digit1.width*0.18),
+                    (digit1.height*0.3),
+                    (digit1.width*0.12),
+                    false);
+                
+                // top left
+                d1_seg6 = createSegment(
+                    0,
+                    (digit1.height*0.12),
+                    (digit1.width*0.18),
+                    (digit1.height*0.3),
+                    (digit1.width*0.12),
+                    false);   // top left
+                
+                // middle
+                d1_seg7 = createSegment(
+                    (digit1.width*0.2),
+                    (digit1.height*0.45),
+                    (digit1.width*0.61),
+                    (digit1.height*0.09),
+                    (digit1.width*0.09),
+                    true);
+    
+                d1_segments = [d1_seg1,d1_seg2,d1_seg3,d1_seg4,d1_seg5,d1_seg6,d1_seg7];    // array of all segments
+
+                // all dimensions are relative to the digit canvas' size
+    
+                // digit two
+                // createSegment(x, y, width, height, pointDepth, isHorizontal)
+
+                // top
+                d2_seg1 = createSegment(
+                    (digit2.width*0.2),
+                    0,
+                    (digit2.width*0.61),
+                    (digit2.height*0.09),
+                    (digit2.width*0.09),
+                    true);
+
+                // top right
+                d2_seg2 = createSegment(
+                    (digit2.width*0.82),
+                    (digit2.height*0.12),
+                    (digit2.width*0.18),
+                    (digit2.height*0.3),
+                    (digit2.width*0.12),
+                    false);
+
+                // bottom right
+                d2_seg3 = createSegment(
+                    (digit2.width*0.82),
+                    (digit2.height*0.58),
+                    (digit2.width*0.18),
+                    (digit2.height*0.3),
+                    (digit2.width*0.12),
+                    false);
+
+                // bottom
+                d2_seg4 = createSegment(
+                    (digit2.width*0.2),
+                    (digit2.height*0.91),
+                    (digit2.width*0.61),
+                    (digit2.height*0.09),
+                    (digit2.width*0.09),
+                    true);
+
+                // bottom left
+                d2_seg5 = createSegment(
+                    0,
+                    (digit2.height*0.58),
+                    (digit2.width*0.18),
+                    (digit2.height*0.3),
+                    (digit2.width*0.12),
+                    false);
+                
+                // top left
+                d2_seg6 = createSegment(
+                    0,
+                    (digit2.height*0.12),
+                    (digit2.width*0.18),
+                    (digit2.height*0.3),
+                    (digit2.width*0.12),
+                    false);   // top left
+                
+                // middle
+                d2_seg7 = createSegment(
+                    (digit2.width*0.2),
+                    (digit2.height*0.45),
+                    (digit2.width*0.61),
+                    (digit2.height*0.09),
+                    (digit2.width*0.09),
+                    true);
+    
+                d2_segments = [d2_seg1,d2_seg2,d2_seg3,d2_seg4,d2_seg5,d2_seg6,d2_seg7];    // array of all segments
+    
+                // digit three
+                // createSegment(x, y, width, height, pointDepth, isHorizontal)
+
+                // top
+                d3_seg1 = createSegment(
+                    (digit3.width*0.2),
+                    0,
+                    (digit3.width*0.61),
+                    (digit3.height*0.09),
+                    (digit3.width*0.09),
+                    true);
+
+                // top right
+                d3_seg2 = createSegment(
+                    (digit3.width*0.82),
+                    (digit3.height*0.12),
+                    (digit3.width*0.18),
+                    (digit3.height*0.3),
+                    (digit3.width*0.12),
+                    false);
+
+                // bottom right
+                d3_seg3 = createSegment(
+                    (digit3.width*0.82),
+                    (digit3.height*0.58),
+                    (digit3.width*0.18),
+                    (digit3.height*0.3),
+                    (digit3.width*0.12),
+                    false);
+
+                // bottom
+                d3_seg4 = createSegment(
+                    (digit3.width*0.2),
+                    (digit3.height*0.91),
+                    (digit3.width*0.61),
+                    (digit3.height*0.09),
+                    (digit3.width*0.09),
+                    true);
+
+                // bottom left
+                d3_seg5 = createSegment(
+                    0,
+                    (digit3.height*0.58),
+                    (digit3.width*0.18),
+                    (digit3.height*0.3),
+                    (digit3.width*0.12),
+                    false);
+                
+                // top left
+                d3_seg6 = createSegment(
+                    0,
+                    (digit3.height*0.12),
+                    (digit3.width*0.18),
+                    (digit3.height*0.3),
+                    (digit3.width*0.12),
+                    false);   // top left
+                
+                // middle
+                d3_seg7 = createSegment(
+                    (digit3.width*0.2),
+                    (digit3.height*0.45),
+                    (digit3.width*0.61),
+                    (digit3.height*0.09),
+                    (digit3.width*0.09),
+                    true);
+    
+                d3_segments = [d3_seg1,d3_seg2,d3_seg3,d3_seg4,d3_seg5,d3_seg6,d3_seg7];    // array of all segments
+    
+                // digit four
+                // createSegment(x, y, width, height, pointDepth, isHorizontal)
+
+                // top
+                d4_seg1 = createSegment(
+                    (digit4.width*0.2),
+                    0,
+                    (digit4.width*0.61),
+                    (digit4.height*0.09),
+                    (digit4.width*0.09),
+                    true);
+
+                // top right
+                d4_seg2 = createSegment(
+                    (digit4.width*0.82),
+                    (digit4.height*0.12),
+                    (digit4.width*0.18),
+                    (digit4.height*0.3),
+                    (digit4.width*0.12),
+                    false);
+
+                // bottom right
+                d4_seg3 = createSegment(
+                    (digit4.width*0.82),
+                    (digit4.height*0.58),
+                    (digit4.width*0.18),
+                    (digit4.height*0.3),
+                    (digit4.width*0.12),
+                    false);
+
+                // bottom
+                d4_seg4 = createSegment(
+                    (digit4.width*0.2),
+                    (digit4.height*0.91),
+                    (digit4.width*0.61),
+                    (digit4.height*0.09),
+                    (digit4.width*0.09),
+                    true);
+
+                // bottom left
+                d4_seg5 = createSegment(
+                    0,
+                    (digit4.height*0.58),
+                    (digit4.width*0.18),
+                    (digit4.height*0.3),
+                    (digit4.width*0.12),
+                    false);
+                
+                // top left
+                d4_seg6 = createSegment(
+                    0,
+                    (digit4.height*0.12),
+                    (digit4.width*0.18),
+                    (digit4.height*0.3),
+                    (digit4.width*0.12),
+                    false);   // top left
+                
+                // middle
+                d4_seg7 = createSegment(
+                    (digit4.width*0.2),
+                    (digit4.height*0.45),
+                    (digit4.width*0.61),
+                    (digit4.height*0.09),
+                    (digit4.width*0.09),
+                    true);
+    
+                d4_segments = [d4_seg1,d4_seg2,d4_seg3,d4_seg4,d4_seg5,d4_seg6,d4_seg7];    // array of all segments
+    
+                // digit five
+                // createSegment(x, y, width, height, pointDepth, isHorizontal)
+
+                // top
+                d5_seg1 = createSegment(
+                    (digit5.width*0.2),
+                    0,
+                    (digit5.width*0.61),
+                    (digit5.height*0.09),
+                    (digit5.width*0.09),
+                    true);
+
+                // top right
+                d5_seg2 = createSegment(
+                    (digit5.width*0.82),
+                    (digit5.height*0.12),
+                    (digit5.width*0.18),
+                    (digit5.height*0.3),
+                    (digit5.width*0.12),
+                    false);
+
+                // bottom right
+                d5_seg3 = createSegment(
+                    (digit5.width*0.82),
+                    (digit5.height*0.58),
+                    (digit5.width*0.18),
+                    (digit5.height*0.3),
+                    (digit5.width*0.12),
+                    false);
+
+                // bottom
+                d5_seg4 = createSegment(
+                    (digit5.width*0.2),
+                    (digit5.height*0.91),
+                    (digit5.width*0.61),
+                    (digit5.height*0.09),
+                    (digit5.width*0.09),
+                    true);
+
+                // bottom left
+                d5_seg5 = createSegment(
+                    0,
+                    (digit5.height*0.58),
+                    (digit5.width*0.18),
+                    (digit5.height*0.3),
+                    (digit5.width*0.12),
+                    false);
+                
+                // top left
+                d5_seg6 = createSegment(
+                    0,
+                    (digit5.height*0.12),
+                    (digit5.width*0.18),
+                    (digit5.height*0.3),
+                    (digit5.width*0.12),
+                    false);   // top left
+                
+                // middle
+                d5_seg7 = createSegment(
+                    (digit5.width*0.2),
+                    (digit5.height*0.45),
+                    (digit5.width*0.61),
+                    (digit5.height*0.09),
+                    (digit5.width*0.09),
+                    true);
+    
+                d5_segments = [d5_seg1,d5_seg2,d5_seg3,d5_seg4,d5_seg5,d5_seg6,d5_seg7];    // array of all segments
+    
+                // digit six
+                // createSegment(x, y, width, height, pointDepth, isHorizontal)
+
+                // top
+                d6_seg1 = createSegment(
+                    (digit6.width*0.2),
+                    0,
+                    (digit6.width*0.61),
+                    (digit6.height*0.09),
+                    (digit6.width*0.09),
+                    true);
+
+                // top right
+                d6_seg2 = createSegment(
+                    (digit6.width*0.82),
+                    (digit6.height*0.12),
+                    (digit6.width*0.18),
+                    (digit6.height*0.3),
+                    (digit6.width*0.12),
+                    false);
+
+                // bottom right
+                d6_seg3 = createSegment(
+                    (digit6.width*0.82),
+                    (digit6.height*0.58),
+                    (digit6.width*0.18),
+                    (digit6.height*0.3),
+                    (digit6.width*0.12),
+                    false);
+
+                // bottom
+                d6_seg4 = createSegment(
+                    (digit6.width*0.2),
+                    (digit6.height*0.91),
+                    (digit6.width*0.61),
+                    (digit6.height*0.09),
+                    (digit6.width*0.09),
+                    true);
+
+                // bottom left
+                d6_seg5 = createSegment(
+                    0,
+                    (digit6.height*0.58),
+                    (digit6.width*0.18),
+                    (digit6.height*0.3),
+                    (digit6.width*0.12),
+                    false);
+                
+                // top left
+                d6_seg6 = createSegment(
+                    0,
+                    (digit6.height*0.12),
+                    (digit6.width*0.18),
+                    (digit6.height*0.3),
+                    (digit6.width*0.12),
+                    false);   // top left
+                
+                // middle
+                d6_seg7 = createSegment(
+                    (digit6.width*0.2),
+                    (digit6.height*0.45),
+                    (digit6.width*0.61),
+                    (digit6.height*0.09),
+                    (digit6.width*0.09),
+                    true);
+    
+                d6_segments = [d6_seg1,d6_seg2,d6_seg3,d6_seg4,d6_seg5,d6_seg6,d6_seg7];    // array of all segments
+    
+                // used to display all segments at one time
+                const segments = [
+                d1_seg1,d1_seg2,d1_seg3,d1_seg4,d1_seg5,d1_seg6,d1_seg7,
+                d2_seg1,d2_seg2,d2_seg3,d2_seg4,d2_seg5,d2_seg6,d2_seg7,
+                d3_seg1,d3_seg2,d3_seg3,d3_seg4,d3_seg5,d3_seg6,d3_seg7,
+                d4_seg1,d4_seg2,d4_seg3,d4_seg4,d4_seg5,d4_seg6,d4_seg7,
+                d5_seg1,d5_seg2,d5_seg3,d5_seg4,d5_seg5,d5_seg6,d5_seg7,
+                d6_seg1,d6_seg2,d6_seg3,d6_seg4,d6_seg5,d6_seg6,d6_seg7];           
+    
+                function createSegment(x, y, width, height, pointDepth, isHorizontal) {     // creates each segment
+                    rectangle = new Path2D();       // used Path2D class for shape creation
+                    rectangle.rect(x, y, width, height);
+                    rectangle.moveTo(x, y);
+    
+                    if (isHorizontal == true) {   // if segment is horizontal
+                        // left triangle
+                        rectangle.lineTo(x - pointDepth, y + (height/2));
+                        rectangle.lineTo(x, y + height);
+    
+                        // right triangle
+                        rectangle.moveTo(x + width, y);
+                        rectangle.lineTo(x + width + pointDepth, y + (height/2));
+                        rectangle.lineTo(x + width, y + height);
+                    }
+                    else {      // if segment is vertical
+                        // top triangle
+                        rectangle.lineTo(x + (width/2), y - pointDepth);
+                        rectangle.lineTo(x + width, y);
+    
+                        // bottom triangle
+                        rectangle.moveTo(x, y + height);
+                        rectangle.lineTo(x + (width/2), y + height + pointDepth);
+                        rectangle.lineTo(x + width, y + height);
+                    }
+                    rectangle.closePath();
+                    return rectangle;
+                }
+    
+                function setSegments(context, segment, isOn) {      // sets segment to appropriate color
+                    var offColor = "#1E1E1E";   // dark gray color
+                    var onColor = "red";
+    
+                    context.strokeStyle = offColor;
+                    context.stroke(segment);
+    
+                    if (isOn == 1) {
+                        context.fillStyle = onColor;
+                    }
+                    else {
+                        context.fillStyle = offColor;
+                    }
+                    context.fill(segment);
+                }            
+    
+                // Used to always display digits
+                function setAllSegments(context, segments, isOn) {
+                    for (var i = 0; i < segments.length; i++) {
+                        setSegments(context, segments[i], isOn);
+                    }
+                }
+                setAllSegments(dig1, d1_segments, false);
+                setAllSegments(dig2, d2_segments,false);
+                setAllSegments(dig3, d3_segments,false);
+                setAllSegments(dig4, d4_segments,false);
+                setAllSegments(dig5, d5_segments,false);
+                setAllSegments(dig6, d6_segments,false);
+    
+                function applyNumber(number, timeMarker) {  // timeMarker == hours/minutes/seconds
+                    newNumber = number.toString();          // allows for numbers to be broken down by digit
+                    
+                    if (timeMarker == "hours") {    // if hours, use first two digit segments, d1_segments and d2_segments
+                        if (number < 10) {  // if number is below 10, default first digit to 0
+                            for (var i = 0; i < 7; i++) {
+                                setSegments(dig1, d1_segments[i], zero[i]);  // defaults first digit to 0                    
+                            }
+                            for (var i = 0; i < 7; i++) {   // sets number accordingly
+                                if (number == 1) {
+                                    setSegments(dig2, d2_segments[i], one[i]);
+                                }
+                                else if (number == 2) {
+                                    setSegments(dig2, d2_segments[i], two[i]);
+                                }
+                                else if (number == 3) {
+                                    setSegments(dig2, d2_segments[i], three[i]);
+                                }
+                                else if (number == 4) {
+                                    setSegments(dig2, d2_segments[i], four[i]);
+                                }
+                                else if (number == 5) {
+                                    setSegments(dig2, d2_segments[i], five[i]);
+                                }
+                                else if (number == 6) {
+                                    setSegments(dig2, d2_segments[i], six[i]);
+                                }
+                                else if (number == 7) {
+                                    setSegments(dig2, d2_segments[i], seven[i]);
+                                }
+                                else if (number == 8) {
+                                    setSegments(dig2, d2_segments[i], eight[i]);
+                                }
+                                else if (number == 9) {
+                                    setSegments(dig2, d2_segments[i], nine[i]);
+                                }
+                            }
+                        }
+                        else {  // if number is double-digits
+                            for (var i = 0; i < 7; i++) {       // first digit
+                                if (newNumber[0] == '1') {
+                                    setSegments(dig1, d1_segments[i], one[i]);
+                                }
+                                else if (newNumber[0] == '2') {
+                                    setSegments(dig1, d1_segments[i], two[i]);
+                                }
+                                else if (newNumber[0] == '3') {
+                                    setSegments(dig1, d1_segments[i], three[i]);
+                                }
+                                else if (newNumber[0] == '4') {
+                                    setSegments(dig1, d1_segments[i], four[i]);
+                                }
+                                else if (newNumber[0] == '5') {
+                                    setSegments(dig1, d1_segments[i], five[i]);
+                                }
+                                else if (newNumber[0] == '6') {
+                                    setSegments(dig1, d1_segments[i], six[i]);
+                                }
+                                else if (newNumber[0] == '7') {
+                                    setSegments(dig1, d1_segments[i], seven[i]);
+                                }
+                                else if (newNumber[0] == '8') {
+                                    setSegments(dig1, d1_segments[i], eight[i]);
+                                }
+                                else if (newNumber[0] == '9') {
+                                    setSegments(dig1, d1_segments[i], nine[i]);
+                                }                           
+                            }
+                            for (var i = 0; i < 7; i++) {       // second digit
+                                if (newNumber[1] == '0') {
+                                    setSegments(dig2, d2_segments[i], zero[i]);
+                                }
+                                else if (newNumber[1] == '1') {
+                                    setSegments(dig2, d2_segments[i], one[i]);
+                                }
+                                else if (newNumber[1] == '2') {
+                                    setSegments(dig2, d2_segments[i], two[i]);
+                                }
+                                else if (newNumber[1] == '3') {
+                                    setSegments(dig2, d2_segments[i], three[i]);
+                                }
+                                else if (newNumber[1] == '4') {
+                                    setSegments(dig2, d2_segments[i], four[i]);
+                                }
+                                else if (newNumber[1] == '5') {
+                                    setSegments(dig2, d2_segments[i], five[i]);
+                                }
+                                else if (newNumber[1] == '6') {
+                                    setSegments(dig2, d2_segments[i], six[i]);
+                                }
+                                else if (newNumber[1] == '7') {
+                                    setSegments(dig2, d2_segments[i], seven[i]);
+                                }
+                                else if (newNumber[1] == '8') {
+                                    setSegments(dig2, d2_segments[i], eight[i]);
+                                }
+                                else if (newNumber[1] == '9') {
+                                    setSegments(dig2, d2_segments[i], nine[i]);
+                                }
+                            }
+                        }
+                    }
+                    else if (timeMarker == "minutes") {     // sets minutes, d3_segments and d4_segments
+                        if (number < 10) {
+                            if (number == 0) {      // if number is 0, set both digits to 0
+                                for (var i = 0; i < 7; i++) {
+                                    setSegments(dig3, d3_segments[i], zero[i]);
+                                    setSegments(dig4, d4_segments[i], zero[i]);                            
+                                }
+                            }
+                            else {      // singe-digits
+                                for (var i = 0; i < 7; i++) {
+                                setSegments(dig3, d3_segments[i], zero[i]);                            
+                                }
+                                for (var i = 0; i < 7; i++) {
+                                    if (number == 1) {
+                                        setSegments(dig4, d4_segments[i], one[i]);
+                                    }
+                                    else if (number == 2) {
+                                        setSegments(dig4, d4_segments[i], two[i]);
+                                    }
+                                    else if (number == 3) {
+                                        setSegments(dig4, d4_segments[i], three[i]);
+                                    }
+                                    else if (number == 4) {
+                                        setSegments(dig4, d4_segments[i], four[i]);
+                                    }
+                                    else if (number == 5) {
+                                        setSegments(dig4, d4_segments[i], five[i]);
+                                    }
+                                    else if (number == 6) {
+                                        setSegments(dig4, d4_segments[i], six[i]);
+                                    }
+                                    else if (number == 7) {
+                                        setSegments(dig4, d4_segments[i], seven[i]);
+                                    }
+                                    else if (number == 8) {
+                                        setSegments(dig4, d4_segments[i], eight[i]);
+                                    }
+                                    else if (number == 9) {
+                                        setSegments(dig4, d4_segments[i], nine[i]);
+                                    }
+                                }
+                            }
+                        }
+                        else {      // double-digits
+                            for (var i = 0; i < 7; i++) {   // first digit, digit 3
+                                if (newNumber[0] == '1') {
+                                    setSegments(dig3, d3_segments[i], one[i]);
+                                }
+                                else if (newNumber[0] == '2') {
+                                    setSegments(dig3, d3_segments[i], two[i]);
+                                }
+                                else if (newNumber[0] == '3') {
+                                    setSegments(dig3, d3_segments[i], three[i]);
+                                }
+                                else if (newNumber[0] == '4') {
+                                    setSegments(dig3, d3_segments[i], four[i]);
+                                }
+                                else if (newNumber[0] == '5') {
+                                    setSegments(dig3, d3_segments[i], five[i]);
+                                }
+                                else if (newNumber[0] == '6') {
+                                    setSegments(dig3, d3_segments[i], six[i]);
+                                }
+                                else if (newNumber[0] == '7') {
+                                    setSegments(dig3, d3_segments[i], seven[i]);
+                                }
+                                else if (newNumber[0] == '8') {
+                                    setSegments(dig3, d3_segments[i], eight[i]);
+                                }
+                                else if (newNumber[0] == '9') {
+                                    setSegments(dig3, d3_segments[i], nine[i]);
+                                }                           
+                            }
+                            for (var i = 0; i < 7; i++) {       // second digit, digit 4
+                                if (newNumber[1] == '0') {
+                                    setSegments(dig4, d4_segments[i], zero[i]);
+                                }
+                                else if (newNumber[1] == '1') {
+                                    setSegments(dig4, d4_segments[i], one[i]);
+                                }
+                                else if (newNumber[1] == '2') {
+                                    setSegments(dig4, d4_segments[i], two[i]);
+                                }
+                                else if (newNumber[1] == '3') {
+                                    setSegments(dig4, d4_segments[i], three[i]);
+                                }
+                                else if (newNumber[1] == '4') {
+                                    setSegments(dig4, d4_segments[i], four[i]);
+                                }
+                                else if (newNumber[1] == '5') {
+                                    setSegments(dig4, d4_segments[i], five[i]);
+                                }
+                                else if (newNumber[1] == '6') {
+                                    setSegments(dig4, d4_segments[i], six[i]);
+                                }
+                                else if (newNumber[1] == '7') {
+                                    setSegments(dig4, d4_segments[i], seven[i]);
+                                }
+                                else if (newNumber[1] == '8') {
+                                    setSegments(dig4, d4_segments[i], eight[i]);
+                                }
+                                else if (newNumber[1] == '9') {
+                                    setSegments(dig4, d4_segments[i], nine[i]);
+                                }
+                            }
+                        }
+                    }
+                    else {      // displays seconds
+                        if (number == 0) {  // sets both digits to 0
+                            for (var i = 0; i < 7; i++) {
+                                setSegments(dig5, d5_segments[i], zero[i]);
+                                setSegments(dig6, d6_segments[i], zero[i]);                            
+                            }
+                        }
+                        if (number < 10) {      // single digit
+                            for (var i = 0; i < 7; i++) {
+                                setSegments(dig5, d5_segments[i], zero[i]);  // sets first digit to 0                      
+                            }
+                            for (var i = 0; i < 7; i++) {   // second digit it actual time
+                                if (number == 1) {
+                                    setSegments(dig6, d6_segments[i], one[i]);
+                                }
+                                else if (number == 2) {
+                                    setSegments(dig6, d6_segments[i], two[i]);
+                                }
+                                else if (number == 3) {
+                                    setSegments(dig6, d6_segments[i], three[i]);
+                                }
+                                else if (number == 4) {
+                                    setSegments(dig6, d6_segments[i], four[i]);
+                                }
+                                else if (number == 5) {
+                                    setSegments(dig6, d6_segments[i], five[i]);
+                                }
+                                else if (number == 6) {
+                                    setSegments(dig6, d6_segments[i], six[i]);
+                                }
+                                else if (number == 7) {
+                                    setSegments(dig6, d6_segments[i], seven[i]);
+                                }
+                                else if (number == 8) {
+                                    setSegments(dig6, d6_segments[i], eight[i]);
+                                }
+                                else if (number == 9) {
+                                    setSegments(dig6, d6_segments[i], nine[i]);
+                                }
+                            }
+                        }
+                        else {  // double-digit
+                            for (var i = 0; i < 7; i++) {   // first digit
+                                if (newNumber[0] == '1') {
+                                    setSegments(dig5, d5_segments[i], one[i]);
+                                }
+                                else if (newNumber[0] == '2') {
+                                    setSegments(dig5, d5_segments[i], two[i]);
+                                }
+                                else if (newNumber[0] == '3') {
+                                    setSegments(dig5, d5_segments[i], three[i]);
+                                }
+                                else if (newNumber[0] == '4') {
+                                    setSegments(dig5, d5_segments[i], four[i]);
+                                }
+                                else if (newNumber[0] == '5') {
+                                    setSegments(dig5, d5_segments[i], five[i]);
+                                }
+                                else if (newNumber[0] == '6') {
+                                    setSegments(dig5, d5_segments[i], six[i]);
+                                }
+                                else if (newNumber[0] == '7') {
+                                    setSegments(dig5, d5_segments[i], seven[i]);
+                                }
+                                else if (newNumber[0] == '8') {
+                                    setSegments(dig5, d5_segments[i], eight[i]);
+                                }
+                                else if (newNumber[0] == '9') {
+                                    setSegments(dig5, d5_segments[i], nine[i]);
+                                }                           
+                            }
+                            for (var i = 0; i < 7; i++) {   // second digit
+                                if (newNumber[1] == '0') {
+                                    setSegments(dig6, d6_segments[i], zero[i]);
+                                }
+                                else if (newNumber[1] == '1') {
+                                    setSegments(dig6, d6_segments[i], one[i]);
+                                }
+                                else if (newNumber[1] == '2') {
+                                    setSegments(dig6, d6_segments[i], two[i]);
+                                }
+                                else if (newNumber[1] == '3') {
+                                    setSegments(dig6, d6_segments[i], three[i]);
+                                }
+                                else if (newNumber[1] == '4') {
+                                    setSegments(dig6, d6_segments[i], four[i]);
+                                }
+                                else if (newNumber[1] == '5') {
+                                    setSegments(dig6, d6_segments[i], five[i]);
+                                }
+                                else if (newNumber[1] == '6') {
+                                    setSegments(dig6, d6_segments[i], six[i]);
+                                }
+                                else if (newNumber[1] == '7') {
+                                    setSegments(dig6, d6_segments[i], seven[i]);
+                                }
+                                else if (newNumber[1] == '8') {
+                                    setSegments(dig6, d6_segments[i], eight[i]);
+                                }
+                                else if (newNumber[1] == '9') {
+                                    setSegments(dig6, d6_segments[i], nine[i]);
+                                }
+                            }
+                        }
+                    }
+                }
+          
+                setInterval(function() {    // interval that refreshes every second
+                    // time breakdown
+                    var currentTime = new Date();
+                    var hours = currentTime.getHours();
+                    var minutes = currentTime.getMinutes();
+                    var seconds = currentTime.getSeconds();
+    
+                    applyNumber(hours, "hours");        // displays hour
+                    applyNumber(minutes, "minutes");    // displays minute
+                    applyNumber(seconds, "seconds");    // displays second
+                }, 1000);
+            </script>
+        </div>
+    </body>
+</html>
